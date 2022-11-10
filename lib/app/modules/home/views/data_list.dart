@@ -35,7 +35,7 @@ class _DataListScreenState extends State<DataListScreen> {
                   enablePullDown: false,
                   enablePullUp: controller.isEnablePullUp.value,
                   onLoading: () {
-                    if (controller.pagenation.value) {
+                    if (controller.Pagenation.value) {
                       controller.assigmrntApi(isForLoading: true);
                     } else {
                       controller.refreshController.loadComplete();

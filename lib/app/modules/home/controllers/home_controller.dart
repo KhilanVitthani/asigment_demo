@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:local_auth/error_codes.dart' as auth_error;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:asigment_demo/main.dart';
@@ -20,7 +20,7 @@ class HomeController extends GetxController {
   RxBool isAuth = false.obs;
   RxBool isEnablePullUp = true.obs;
   RxBool canCheckBiometric = false.obs;
-  RxBool pagenation = false.obs;
+  RxBool Pagenation = false.obs;
   RefreshController refreshController = RefreshController();
   final LocalAuthentication auth = LocalAuthentication();
 
@@ -35,6 +35,7 @@ class HomeController extends GetxController {
         title: "Failed",
         desc: "No Internet Connection",
       );
+      LocalData(Get.context!);
     }
 
     super.onInit();
@@ -76,13 +77,26 @@ class HomeController extends GetxController {
     }
   }
 
+  LocalData(BuildContext context) {
+    if (!isNullEmptyOrFalse(box.read(ArgumentConstant.data))) {
+      ApiList.clear();
+      List<dynamic> TempList = jsonDecode(box.read(ArgumentConstant.data));
+      if (!isNullEmptyOrFalse(TempList)) {
+        TempList.forEach((element) {
+          Apimodels res = Apimodels.fromJson(element);
+          ApiList.add(res);
+        });
+      }
+    }
+  }
+
   assigmrntApi({bool isForLoading = false}) async {
     if (isForLoading) {
       isEnablePullUp.value = true;
       page.value++;
       //Apilist.clear();
     }
-    pagenation.value = false;
+    Pagenation.value = false;
     var url = Uri.parse(
         baseUrl + ApiConstant.getGitList + "?page=${page.value}&per_page=15");
     var response;
@@ -96,10 +110,10 @@ class HomeController extends GetxController {
           result.forEach((element) {
             Apimodels res = Apimodels.fromJson(element);
             ApiList.add(res);
-            pagenation.value = true;
+            Pagenation.value = true;
           });
         }
-
+        box.write(ArgumentConstant.data, jsonEncode(ApiList));
         print(result);
         if (isForLoading) {
           refreshController.loadComplete();
