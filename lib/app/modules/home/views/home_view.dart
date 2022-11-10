@@ -24,10 +24,10 @@ class HomeView extends GetWidget<HomeController> {
                 child: SmartRefresher(
                   controller: controller.refreshController,
                   enablePullDown: false,
-                  enablePullUp: true,
+                  enablePullUp: controller.isEnablePullUp.value,
                   onLoading: () {
-                    if (controller.pagenation.isFalse) {
-                      print("object");
+                    if (controller.pagenation.value) {
+                      controller.assigmrntApi(isForLoading: true);
                     } else {
                       controller.refreshController.loadComplete();
                     }
