@@ -1,22 +1,79 @@
 import 'dart:convert';
+import 'package:local_auth/error_codes.dart' as auth_error;
+import 'package:flutter/services.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:asigment_demo/main.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:asigment_demo/app/models/Api_models.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-
 import '../../../../constants/api_constants.dart';
+import '../../../../utilities/progress_dialog_utils.dart';
 
 class HomeController extends GetxController {
-  RxList<Apimodels> Apilist = RxList<Apimodels>([]);
+  RxList<Apimodels> ApiList = RxList<Apimodels>([]);
   Apimodels apimodels = Apimodels();
+  RxList<BiometricType> availableBiometric = RxList<BiometricType>([]);
   RxInt page = 1.obs;
   RxBool hasData = false.obs;
+  RxBool isAuth = false.obs;
   RxBool isEnablePullUp = true.obs;
+  RxBool canCheckBiometric = false.obs;
   RxBool pagenation = false.obs;
   RefreshController refreshController = RefreshController();
-  void onInit() {
-    assigmrntApi();
+  final LocalAuthentication auth = LocalAuthentication();
+
+  Future<void> onInit() async {
+    var connectivity = await Connectivity().checkConnectivity();
+    canCheckBiometric.value = await auth.canCheckBiometrics;
+
+    if (connectivity != ConnectivityResult.none) {
+      assigmrntApi();
+    } else {
+      getIt<CustomDialogs>().getDialog(
+        title: "Failed",
+        desc: "No Internet Connection",
+      );
+    }
+
     super.onInit();
+  }
+
+  checkAuth() async {
+    try {
+      await auth.getAvailableBiometrics().then((value) {
+        if (!isNullEmptyOrFalse(value)) {
+          availableBiometric.value = value;
+        }
+      });
+    } on PlatformException catch (e) {
+      getIt<CustomDialogs>().getDialog(
+          title: "Failed",
+          desc: "Please enable security feature on your device.");
+      print(e);
+    }
+    try {
+      await auth
+          .authenticate(
+        localizedReason: 'Touch your finger on the sensor to login',
+        options: AuthenticationOptions(
+          biometricOnly: false,
+        ),
+      )
+          .then((value) {
+        if (!isNullEmptyOrFalse(value)) {
+          isAuth.value = true;
+        }
+      });
+    } catch (e) {
+      PlatformException error = e as PlatformException;
+      if (error.code == "auth_in_progress") {
+        getIt<CustomDialogs>()
+            .getDialog(title: "Failed", desc: "${error.message}");
+      }
+      print(e);
+    }
   }
 
   assigmrntApi({bool isForLoading = false}) async {
@@ -38,7 +95,7 @@ class HomeController extends GetxController {
         if (!isNullEmptyOrFalse(result)) {
           result.forEach((element) {
             Apimodels res = Apimodels.fromJson(element);
-            Apilist.add(res);
+            ApiList.add(res);
             pagenation.value = true;
           });
         }

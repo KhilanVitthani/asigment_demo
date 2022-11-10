@@ -1,8 +1,10 @@
+import 'package:asigment_demo/app/modules/home/views/data_list.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import '../../../../constants/sizeConstant.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetWidget<HomeController> {
@@ -10,54 +12,37 @@ class HomeView extends GetWidget<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('HomeView'),
-        centerTitle: true,
-      ),
-      body: Obx(() {
-        return Container(
-          height: MediaQuery.of(context).size.height,
-          child: Column(
-            children: [
-              Expanded(
-                child: SmartRefresher(
-                  controller: controller.refreshController,
-                  enablePullDown: false,
-                  enablePullUp: controller.isEnablePullUp.value,
-                  onLoading: () {
-                    if (controller.pagenation.value) {
-                      controller.assigmrntApi(isForLoading: true);
-                    } else {
-                      controller.refreshController.loadComplete();
-                    }
-                  },
-                  child: ListView.builder(
-                    itemCount: controller.Apilist.length,
-                    itemBuilder: (context, index) {
-                      return Column(
-                        children: [
-                          Padding(padding: EdgeInsets.all(18)),
-                          Row(
-                            children: [
-                              Text(controller.Apilist[index].name.toString(),
-                                  style: TextStyle(fontSize: 15)),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Text(index.toString()),
-                            ],
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+    MySize().init(context);
+    return Obx(() {
+      return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text("Home View"),
+        ),
+        body: (controller.isAuth.value)
+            ? DataListScreen(homeController: controller)
+            : Container(
+                height: MySize.safeHeight,
+                width: MySize.safeWidth,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        controller.checkAuth();
+                      },
+                      child: Container(
+                        child: Icon(
+                          Icons.lock_outline_rounded,
+                          size: MySize.getHeight(50),
+                        ),
+                      ),
+                    )
+                  ],
                 ),
-              )
-            ],
-          ),
-        );
-      }),
-    );
+              ),
+      );
+    });
   }
 }
