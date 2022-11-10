@@ -1,5 +1,6 @@
 import 'package:asigment_demo/app/modules/home/controllers/home_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -22,7 +23,9 @@ class _DataListScreenState extends State<DataListScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return Scaffold(
       body: Obx(() {
         return Container(
@@ -50,54 +53,72 @@ class _DataListScreenState extends State<DataListScreen> {
                     itemCount: controller.ApiList.length,
                     itemBuilder: (context, index) {
                       return Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: MySize.getWidth(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              child:
-                                  Icon(Icons.book, size: MySize.getHeight(50)),
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      width: MySize.getWidth(270),
-                                      child: Text(
-                                        controller.ApiList[index].name
-                                            .toString(),
-                                        style: TextStyle(
-                                          fontSize: MySize.getHeight(15),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: MySize.getWidth(8),
+                          ),
+                          child: AnimationLimiter(
+                              child: Column(
+                            children: AnimationConfiguration.toStaggeredList(
+                                duration: const Duration(milliseconds: 475),
+                                childAnimationBuilder: (p0) => FlipAnimation(
+                                      child: SlideAnimation(
+                                        child: FadeInAnimation(
+                                          child: p0,
                                         ),
                                       ),
                                     ),
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-                                    Text(index.toString()),
-                                  ],
-                                ),
-                                Container(
-                                  width: MySize.getWidth(300),
-                                  child: Text(
-                                    controller.ApiList[index].description ??
-                                        "".toString(),
-                                    style: TextStyle(
-                                      fontSize: MySize.getHeight(12),
-                                    ),
-                                    maxLines: 2,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        child: Icon(Icons.book,
+                                            size: MySize.getHeight(50)),
+                                      ),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                width: MySize.getWidth(270),
+                                                child: Text(
+                                                  controller.ApiList[index].name
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                    fontSize:
+                                                        MySize.getHeight(15),
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 5,
+                                              ),
+                                              Text(index.toString()),
+                                            ],
+                                          ),
+                                          Container(
+                                            width: MySize.getWidth(300),
+                                            child: Text(
+                                              controller.ApiList[index]
+                                                      .description ??
+                                                  "".toString(),
+                                              style: TextStyle(
+                                                fontSize: MySize.getHeight(12),
+                                              ),
+                                              maxLines: 2,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
+                                ]),
+                          )));
                     },
                   ),
                 ),
