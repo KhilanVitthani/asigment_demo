@@ -19,7 +19,7 @@ class HomeController extends GetxController {
   RxList<BiometricType> availableBiometric = RxList<BiometricType>([]);
   RxInt page = 1.obs;
   RxBool hasData = false.obs;
-  RxBool isAuth = false.obs;
+  RxBool isAuth = true.obs;
   RxBool isEnablePullUp = true.obs;
   RxBool canCheckBiometric = false.obs;
   RxBool pagenation = false.obs;
@@ -33,10 +33,10 @@ class HomeController extends GetxController {
     if (connectivity != ConnectivityResult.none) {
       assigmrntApi();
     } else {
-      // getIt<CustomDialogs>().getDialog(
-      //   title: "Failed",
-      //   desc: "No Internet Connection",
-      // );
+      getIt<CustomDialogs>().getDialog(
+        title: "Failed",
+        desc: "No Internet Connection",
+      );
       getDataFromLocalDatabase(context: Get.context!);
     }
 
@@ -83,7 +83,6 @@ class HomeController extends GetxController {
     if (isForLoading) {
       isEnablePullUp.value = true;
       page.value++;
-      hasData.value = false;
       //Apilist.clear();
     }
     pagenation.value = false;
@@ -108,6 +107,8 @@ class HomeController extends GetxController {
           print("Local data 2 := ${box.read(ArgumentConstant.data)}");
         }
         // print(result);
+        hasData.value = true;
+
         if (isForLoading) {
           refreshController.loadComplete();
         }
@@ -116,7 +117,6 @@ class HomeController extends GetxController {
           refreshController.loadComplete();
           isEnablePullUp.value = false;
         }
-        hasData.value = true;
       }
     }).catchError((error) {
       hasData.value = true;
