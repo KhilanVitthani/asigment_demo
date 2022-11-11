@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
@@ -17,7 +19,7 @@ class HomeController extends GetxController {
   RxList<BiometricType> availableBiometric = RxList<BiometricType>([]);
   RxInt page = 1.obs;
   RxBool hasData = false.obs;
-  RxBool isAuth = false.obs;
+  RxBool isAuth = true.obs;
   RxBool isEnablePullUp = true.obs;
   RxBool canCheckBiometric = false.obs;
   RxBool pagenation = false.obs;
@@ -26,15 +28,16 @@ class HomeController extends GetxController {
 
   Future<void> onInit() async {
     var connectivity = await Connectivity().checkConnectivity();
-    canCheckBiometric.value = await auth.canCheckBiometrics;
-
+    // canCheckBiometric.value = await auth.canCheckBiometrics;
+    print("Local data := ${box.read(ArgumentConstant.data)}");
     if (connectivity != ConnectivityResult.none) {
       assigmrntApi();
     } else {
-      getIt<CustomDialogs>().getDialog(
-        title: "Failed",
-        desc: "No Internet Connection",
-      );
+      // getIt<CustomDialogs>().getDialog(
+      //   title: "Failed",
+      //   desc: "No Internet Connection",
+      // );
+      getDataFromLocalDatabase(context: Get.context!);
     }
 
     super.onInit();
@@ -100,7 +103,11 @@ class HomeController extends GetxController {
           });
         }
 
-        print(result);
+        if (!isNullEmptyOrFalse(ApiList)) {
+          box.write(ArgumentConstant.data, jsonEncode(ApiList));
+          print("Local data 2 := ${box.read(ArgumentConstant.data)}");
+        }
+        // print(result);
         if (isForLoading) {
           refreshController.loadComplete();
         }
@@ -113,6 +120,21 @@ class HomeController extends GetxController {
     }).catchError((error) {
       print(error);
     });
+  }
+
+  getDataFromLocalDatabase({required BuildContext context}) {
+    if (!isNullEmptyOrFalse(box.read(ArgumentConstant.data))) {
+      ApiList.clear();
+      List<dynamic> TempList = jsonDecode(box.read(ArgumentConstant.data));
+      print(box.read(ArgumentConstant.data).runtimeType);
+
+      if (!isNullEmptyOrFalse(TempList)) {
+        TempList.forEach((element) {
+          Apimodels res = Apimodels.fromJson(element);
+          ApiList.add(res);
+        });
+      }
+    }
   }
 
   @override
