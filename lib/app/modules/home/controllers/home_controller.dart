@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import '../../../../constants/connectivityHelper.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
@@ -47,6 +48,42 @@ class HomeController extends GetxController {
         ApiList.clear();
         page.value = 1;
         isEnablePullUp.value = true;
+      }
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      if (connectivity != ConnectivityResult.none) {
+        assigmrntApi();
+      } else {
+        showAnimatedDialog(
+          context: Get.context!,
+          barrierDismissible: true,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Colors.grey[100],
+              title: Center(
+                child: Text("Error"),
+              ),
+              contentPadding: EdgeInsets.only(left: 60, top: 10),
+              actions: [
+                Center(
+                  child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                      },
+                      child: Text("OK")),
+                )
+              ],
+              content: Text("No Internet Connection"),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+            );
+          },
+          animationType: DialogTransitionType.slideFromTop,
+          curve: Curves.easeIn,
+          duration: Duration(seconds: 1),
+        );
+        getDataFromLocalDatabase(context: Get.context!);
       }
     });
     super.onInit();

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-
 import '../../../../constants/sizeConstant.dart';
 
 class DataListScreen extends StatefulWidget {
@@ -29,6 +28,7 @@ class _DataListScreenState extends State<DataListScreen> {
     return Scaffold(
       body: Obx(() {
         return Container(
+          color: Colors.grey[100],
           height: MySize.safeHeight,
           child: Column(
             children: [
