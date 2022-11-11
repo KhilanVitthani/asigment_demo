@@ -21,6 +21,7 @@ class HomeController extends GetxController {
   RxList<BiometricType> availableBiometric = RxList<BiometricType>([]);
   RxInt page = 1.obs;
   RxBool hasData = false.obs;
+  RxBool isInternetOn = false.obs;
   RxBool isAuth = false.obs;
   RxBool isEnablePullUp = true.obs;
   final ConnetctivityHelper _connectivity = ConnetctivityHelper.instance;
@@ -69,6 +70,7 @@ class HomeController extends GetxController {
         );
         getDataFromLocalDatabase(context: Get.context!);
       } else {
+        isInternetOn.value = true;
         hasData.value = false;
         page.value = 1;
         isEnablePullUp.value = true;
@@ -126,6 +128,7 @@ class HomeController extends GetxController {
     } else {
       ApiList.clear();
     }
+    isInternetOn.value = true;
     pagenation.value = false;
     var url = Uri.parse(
         baseUrl + ApiConstant.getGitList + "?page=${page.value}&per_page=15");

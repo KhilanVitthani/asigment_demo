@@ -122,7 +122,7 @@ class _DataListScreenState extends State<DataListScreen> {
                     },
                   ),
                 ),
-              )
+              ),
             ],
           ),
         );
