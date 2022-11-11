@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
@@ -9,6 +10,7 @@ import 'package:asigment_demo/app/models/Api_models.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../../../../constants/api_constants.dart';
+import '../../../../constants/sizeConstant.dart';
 import '../../../../utilities/progress_dialog_utils.dart';
 
 class HomeController extends GetxController {
@@ -81,6 +83,7 @@ class HomeController extends GetxController {
     if (isForLoading) {
       isEnablePullUp.value = true;
       page.value++;
+      hasData.value = false;
       //Apilist.clear();
     }
     pagenation.value = false;
@@ -100,7 +103,6 @@ class HomeController extends GetxController {
             pagenation.value = true;
           });
         }
-
         if (!isNullEmptyOrFalse(ApiList)) {
           box.write(ArgumentConstant.data, jsonEncode(ApiList));
           print("Local data 2 := ${box.read(ArgumentConstant.data)}");
@@ -114,8 +116,10 @@ class HomeController extends GetxController {
           refreshController.loadComplete();
           isEnablePullUp.value = false;
         }
+        hasData.value = true;
       }
     }).catchError((error) {
+      hasData.value = true;
       print(error);
     });
   }
@@ -144,11 +148,4 @@ class HomeController extends GetxController {
   void onClose() {
     super.onClose();
   }
-}
-
-bool isNullEmptyOrFalse(dynamic o) {
-  if (o is Map<String, dynamic> || o is List<dynamic>) {
-    return o == null || o.length == 0;
-  }
-  return o == null || false == o || "" == o;
 }

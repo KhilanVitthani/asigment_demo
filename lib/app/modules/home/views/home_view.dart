@@ -1,6 +1,5 @@
 import 'package:asigment_demo/app/modules/home/views/data_list.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -20,7 +19,17 @@ class HomeView extends GetWidget<HomeController> {
           title: Text("Home View"),
         ),
         body: (controller.isAuth.value)
-            ? DataListScreen(homeController: controller)
+            ? (controller.hasData.value)
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Container(
+                    child: (isNullEmptyOrFalse(controller.ApiList))
+                        ? Center(
+                            child: Text("No Data Available"),
+                          )
+                        : DataListScreen(homeController: controller),
+                  )
             : Container(
                 height: MySize.safeHeight,
                 width: MySize.safeWidth,

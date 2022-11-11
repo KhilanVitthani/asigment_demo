@@ -38,7 +38,7 @@ class _DataListScreenState extends State<DataListScreen> {
                   enablePullDown: false,
                   enablePullUp: controller.isEnablePullUp.value,
                   onLoading: () {
-                    if (controller.Pagenation.value) {
+                    if (controller.pagenation.value) {
                       controller.assigmrntApi(isForLoading: true);
                     } else {
                       controller.refreshController.loadComplete();
@@ -59,7 +59,7 @@ class _DataListScreenState extends State<DataListScreen> {
                           child: AnimationLimiter(
                               child: Column(
                             children: AnimationConfiguration.toStaggeredList(
-                                duration: const Duration(milliseconds: 475),
+                                duration: const Duration(seconds: 1),
                                 childAnimationBuilder: (p0) => FlipAnimation(
                                       child: SlideAnimation(
                                         child: FadeInAnimation(
