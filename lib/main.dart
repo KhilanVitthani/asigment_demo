@@ -13,6 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
   setUp();
+  await GetStorage.init();
   runApp(
     GetMaterialApp(
       debugShowCheckedModeBanner: false,

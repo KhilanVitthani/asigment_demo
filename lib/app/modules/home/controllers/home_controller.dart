@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
-import 'package:flutter/cupertino.dart';
 import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
@@ -19,7 +17,7 @@ class HomeController extends GetxController {
   RxList<BiometricType> availableBiometric = RxList<BiometricType>([]);
   RxInt page = 1.obs;
   RxBool hasData = false.obs;
-  RxBool isAuth = true.obs;
+  RxBool isAuth = false.obs;
   RxBool isEnablePullUp = true.obs;
   RxBool canCheckBiometric = false.obs;
   RxBool pagenation = false.obs;
@@ -28,8 +26,8 @@ class HomeController extends GetxController {
 
   Future<void> onInit() async {
     var connectivity = await Connectivity().checkConnectivity();
-    // canCheckBiometric.value = await auth.canCheckBiometrics;
-    print("Local data := ${box.read(ArgumentConstant.data)}");
+    canCheckBiometric.value = await auth.canCheckBiometrics;
+
     if (connectivity != ConnectivityResult.none) {
       assigmrntApi();
     } else {
