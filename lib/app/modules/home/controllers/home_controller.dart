@@ -1,15 +1,17 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
+import '../../../../constants/connectivityHelper.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:asigment_demo/main.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:asigment_demo/app/models/Api_models.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../../../../constants/api_constants.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../../../constants/sizeConstant.dart';
 import '../../../../utilities/progress_dialog_utils.dart';
 
@@ -21,14 +23,29 @@ class HomeController extends GetxController {
   RxBool hasData = false.obs;
   RxBool isAuth = false.obs;
   RxBool isEnablePullUp = true.obs;
+  final ConnetctivityHelper _connectivity = ConnetctivityHelper.instance;
+  Map _source = {ConnectivityResult.none: false};
   RxBool canCheckBiometric = false.obs;
   RxBool pagenation = false.obs;
   RefreshController refreshController = RefreshController();
   final LocalAuthentication auth = LocalAuthentication();
 
   Future<void> onInit() async {
-    var connectivity = await Connectivity().checkConnectivity();
     canCheckBiometric.value = await auth.canCheckBiometrics;
+    checkAuth();
+    _connectivity.initialise();
+    _connectivity.myStream.listen((source) {
+      _source = source;
+      if (_source.keys.toList()[0] == ConnectivityResult.none) {
+        getDataFromLocalDatabase(context: Get.context!);
+        getIt<CustomDialogs>().getDialog(
+          title: "Failed",
+          desc: "No Internet Connection",
+        );
+      } else {
+        assigmrntApi();
+      }
+    });
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       if (connectivity != ConnectivityResult.none) {
@@ -108,7 +125,6 @@ class HomeController extends GetxController {
     if (isForLoading) {
       isEnablePullUp.value = true;
       page.value++;
-      hasData.value = false;
       //Apilist.clear();
     }
     pagenation.value = false;
@@ -133,6 +149,8 @@ class HomeController extends GetxController {
           print("Local data 2 := ${box.read(ArgumentConstant.data)}");
         }
         // print(result);
+        hasData.value = true;
+
         if (isForLoading) {
           refreshController.loadComplete();
         }
@@ -141,7 +159,6 @@ class HomeController extends GetxController {
           refreshController.loadComplete();
           isEnablePullUp.value = false;
         }
-        hasData.value = true;
       }
     }).catchError((error) {
       hasData.value = true;
@@ -150,6 +167,7 @@ class HomeController extends GetxController {
   }
 
   getDataFromLocalDatabase({required BuildContext context}) {
+    hasData.value = false;
     if (!isNullEmptyOrFalse(box.read(ArgumentConstant.data))) {
       ApiList.clear();
       List<dynamic> TempList = jsonDecode(box.read(ArgumentConstant.data));
@@ -161,6 +179,7 @@ class HomeController extends GetxController {
           ApiList.add(res);
         });
       }
+      hasData.value = true;
     }
   }
 

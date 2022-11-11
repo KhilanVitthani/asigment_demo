@@ -2,6 +2,7 @@ import 'package:asigment_demo/app/modules/home/views/data_list.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:skeletons/skeletons.dart';
 
 import '../../../../constants/sizeConstant.dart';
 import '../controllers/home_controller.dart';
@@ -19,9 +20,9 @@ class HomeView extends GetWidget<HomeController> {
           title: Text("Home View"),
         ),
         body: (controller.isAuth.value)
-            ? (controller.hasData.value)
+            ? (controller.hasData.isFalse)
                 ? Center(
-                    child: CircularProgressIndicator(),
+                    child: SkeletonListView(),
                   )
                 : Container(
                     child: (isNullEmptyOrFalse(controller.ApiList))
