@@ -39,22 +39,6 @@ class HomeController extends GetxController {
       if (_source.keys.toList()[0] == ConnectivityResult.none) {
         getDataFromLocalDatabase(context: Get.context!);
         isEnablePullUp.value = false;
-        getIt<CustomDialogs>().getDialog(
-          title: "Failed",
-          desc: "No Internet Connection",
-        );
-      } else {
-        hasData.value = false;
-        ApiList.clear();
-        page.value = 1;
-        isEnablePullUp.value = true;
-      }
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      if (connectivity != ConnectivityResult.none) {
-        assigmrntApi();
-      } else {
         showAnimatedDialog(
           context: Get.context!,
           barrierDismissible: true,
@@ -84,6 +68,11 @@ class HomeController extends GetxController {
           duration: Duration(seconds: 1),
         );
         getDataFromLocalDatabase(context: Get.context!);
+      } else {
+        hasData.value = false;
+        ApiList.clear();
+        page.value = 1;
+        isEnablePullUp.value = true;
       }
     });
     super.onInit();
