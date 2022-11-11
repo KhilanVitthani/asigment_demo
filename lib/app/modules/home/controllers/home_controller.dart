@@ -1,15 +1,16 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:local_auth/error_codes.dart' as auth_error;
+import '../../../../constants/connectivityHelper.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:asigment_demo/main.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:asigment_demo/app/models/Api_models.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../../../../constants/api_constants.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../../../constants/sizeConstant.dart';
 import '../../../../utilities/progress_dialog_utils.dart';
 
@@ -21,25 +22,29 @@ class HomeController extends GetxController {
   RxBool hasData = false.obs;
   RxBool isAuth = true.obs;
   RxBool isEnablePullUp = true.obs;
+  final ConnetctivityHelper _connectivity = ConnetctivityHelper.instance;
+  Map _source = {ConnectivityResult.none: false};
   RxBool canCheckBiometric = false.obs;
   RxBool pagenation = false.obs;
   RefreshController refreshController = RefreshController();
   final LocalAuthentication auth = LocalAuthentication();
 
   Future<void> onInit() async {
-    var connectivity = await Connectivity().checkConnectivity();
     canCheckBiometric.value = await auth.canCheckBiometrics;
-
-    if (connectivity != ConnectivityResult.none) {
-      assigmrntApi();
-    } else {
-      getIt<CustomDialogs>().getDialog(
-        title: "Failed",
-        desc: "No Internet Connection",
-      );
-      getDataFromLocalDatabase(context: Get.context!);
-    }
-
+    checkAuth();
+    _connectivity.initialise();
+    _connectivity.myStream.listen((source) {
+      _source = source;
+      if (_source.keys.toList()[0] == ConnectivityResult.none) {
+        getDataFromLocalDatabase(context: Get.context!);
+        getIt<CustomDialogs>().getDialog(
+          title: "Failed",
+          desc: "No Internet Connection",
+        );
+      } else {
+        assigmrntApi();
+      }
+    });
     super.onInit();
   }
 
