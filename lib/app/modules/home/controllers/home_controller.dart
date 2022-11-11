@@ -70,9 +70,12 @@ class HomeController extends GetxController {
         getDataFromLocalDatabase(context: Get.context!);
       } else {
         hasData.value = false;
-        ApiList.clear();
         page.value = 1;
         isEnablePullUp.value = true;
+        ApiList.clear();
+        if (isAuth.value) {
+          assigmrntApi();
+        }
       }
     });
     super.onInit();
