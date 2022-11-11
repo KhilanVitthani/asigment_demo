@@ -20,7 +20,7 @@ class HomeController extends GetxController {
   RxList<BiometricType> availableBiometric = RxList<BiometricType>([]);
   RxInt page = 1.obs;
   RxBool hasData = false.obs;
-  RxBool isAuth = true.obs;
+  RxBool isAuth = false.obs;
   RxBool isEnablePullUp = true.obs;
   final ConnetctivityHelper _connectivity = ConnetctivityHelper.instance;
   Map _source = {ConnectivityResult.none: false};
@@ -130,6 +130,7 @@ class HomeController extends GetxController {
   }
 
   getDataFromLocalDatabase({required BuildContext context}) {
+    hasData.value = false;
     if (!isNullEmptyOrFalse(box.read(ArgumentConstant.data))) {
       ApiList.clear();
       List<dynamic> TempList = jsonDecode(box.read(ArgumentConstant.data));
@@ -141,6 +142,7 @@ class HomeController extends GetxController {
           ApiList.add(res);
         });
       }
+      hasData.value = true;
     }
   }
 
