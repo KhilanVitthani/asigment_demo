@@ -154,7 +154,7 @@ class HomeController extends GetxController {
         }
         // print(result);
         hasData.value = true;
-        if (response.body == null) {
+        if (response.body == []) {
           print("object");
         }
 
