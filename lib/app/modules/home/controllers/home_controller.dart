@@ -16,7 +16,7 @@ import '../../../../utilities/progress_dialog_utils.dart';
 
 class HomeController extends GetxController {
   RxList<Apimodels> ApiList = RxList<Apimodels>([]);
-  Apimodels apimodels = Apimodels();
+  // Apimodels apimodels = Apimodels();
   RxList<BiometricType> availableBiometric = RxList<BiometricType>([]);
   RxInt page = 1.obs;
   RxBool hasData = false.obs;
@@ -37,12 +37,16 @@ class HomeController extends GetxController {
       _source = source;
       if (_source.keys.toList()[0] == ConnectivityResult.none) {
         getDataFromLocalDatabase(context: Get.context!);
+        isEnablePullUp.value = false;
         getIt<CustomDialogs>().getDialog(
           title: "Failed",
           desc: "No Internet Connection",
         );
       } else {
-        assigmrntApi();
+        hasData.value = false;
+        ApiList.clear();
+        page.value = 1;
+        isEnablePullUp.value = true;
       }
     });
     super.onInit();
@@ -72,11 +76,12 @@ class HomeController extends GetxController {
           .then((value) {
         if (!isNullEmptyOrFalse(value)) {
           isAuth.value = true;
+          assigmrntApi();
         }
       });
     } catch (e) {
       PlatformException error = e as PlatformException;
-      if (error.code == "auth_in_progress") {
+      if (error.code != "auth_in_progress") {
         getIt<CustomDialogs>()
             .getDialog(title: "Failed", desc: "${error.message}");
       }
@@ -89,12 +94,19 @@ class HomeController extends GetxController {
       isEnablePullUp.value = true;
       page.value++;
       //Apilist.clear();
+    } else {
+      ApiList.clear();
     }
     pagenation.value = false;
     var url = Uri.parse(
         baseUrl + ApiConstant.getGitList + "?page=${page.value}&per_page=15");
     var response;
     await http.get(url).then((value) async {
+      if (value.statusCode == 403) {
+        hasData.value = true;
+        getIt<CustomDialogs>()
+            .getDialog(title: "Error", desc: "Rate limit exceeded");
+      }
       if (value.statusCode == 200) {
         response = value;
         print('Response status: ${response.statusCode}');
@@ -113,6 +125,9 @@ class HomeController extends GetxController {
         }
         // print(result);
         hasData.value = true;
+        if (response.body == null) {
+          print("object");
+        }
 
         if (isForLoading) {
           refreshController.loadComplete();
@@ -131,6 +146,7 @@ class HomeController extends GetxController {
 
   getDataFromLocalDatabase({required BuildContext context}) {
     hasData.value = false;
+    ApiList.clear();
     if (!isNullEmptyOrFalse(box.read(ArgumentConstant.data))) {
       ApiList.clear();
       List<dynamic> TempList = jsonDecode(box.read(ArgumentConstant.data));
